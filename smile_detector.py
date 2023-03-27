@@ -1,12 +1,13 @@
 """
-Smile detection using OpenCV's trained models
+Smile detection (face plus eye detection) using OpenCV's trained models
 """
 import cv2
 
 
-# Face and smile classifiers
+# Face and smile classifiers / Clasificadores de rostros y sonrisas
 face_detector = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 smile_detector = cv2.CascadeClassifier('haarcascade_smile.xml')
+eye_detector = cv2.CascadeClassifier('haarcascade_eye.xml')
 
 # Grab webcam feed / Captura de la cámara web
 webcam = cv2.VideoCapture(0)
@@ -39,14 +40,24 @@ while True:
         
         # Detect smiles in the face
         smile = smile_detector.detectMultiScale(face_grayscale, scaleFactor=1.7, minNeighbors=20)
+        eye = eye_detector.detectMultiScale(face_grayscale, scaleFactor=1.7, minNeighbors=20)
         
         # Find smile on the face and draw a rectangle around the smile
         for (x_, y_, w_, h_) in smile:
             cv2.rectangle(face, (x_, y_), (x_ + w_, y_ + h_), (50, 50, 200), 3)
+            
+        # Eye detection and draw a rectangle
+        for (x_, y_, w_, h_) in eye:
+            cv2.rectangle(face, (x_, y_), (x_ + w_, y_ + h_), (255, 255, 255), 2)
                 
         # Label this face as 'SMILING'
         if len(smile) > 0:
             cv2.putText(frame, 'SMILING', (x, y+h+40), fontScale=3,
+                        fontFace=cv2.FONT_HERSHEY_PLAIN, color=(255, 255, 255))
+            
+        # Label this face as 'SMILING'
+        if len(eye) > 0:
+            cv2.putText(frame, 'EYES DETECTED', (x, y+h+90), fontScale=3,
                         fontFace=cv2.FONT_HERSHEY_PLAIN, color=(255, 255, 255))
             
         # Show the current frame
